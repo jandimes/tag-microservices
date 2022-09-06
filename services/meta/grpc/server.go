@@ -25,12 +25,25 @@ func (s server) GetAllSystems(ctx context.Context, _ *proto.GetAllSystemsRequest
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
+	if len(result.Systems) == 0 {
+		return &proto.GetAllSystemsResponse{
+			Status: "failure",
+			Errors: []*proto.ResponseError{
+				{
+					StatusCode:   "E00002",
+					ErrorMessage: "No data present. ",
+				},
+			},
+		}, nil
+	}
+
 	res := &proto.GetAllSystemsResponse{
-		Systems: make([]*proto.System, len(result.Systems)),
+		Status: "success",
+		Data:   make([]*proto.System, len(result.Systems)),
 	}
 
 	for i, system := range result.Systems {
-		res.Systems[i] = &proto.System{
+		res.Data[i] = &proto.System{
 			SystemNo:        system.SystemNo,
 			SystemName:      system.SystemName,
 			SystemShortName: system.SystemShortName,

@@ -4,6 +4,7 @@ package services.meta.proto;
 
 option go_package = "github.com/JanCalebManzano/tag-microservices/services/meta/proto";
 
+import "google/protobuf/any.proto";
 import "google/api/annotations.proto";
 
 service MetaService {
@@ -14,11 +15,23 @@ service MetaService {
   }
 }
 
+message ResponseError {
+  string status_code = 1;
+  string location = 2;
+  string param = 3;
+  google.protobuf.Any input_value = 4;
+  string error_message = 5;
+}
+
 message GetAllSystemsRequest {}
 
 message GetAllSystemsResponse {
-  repeated System systems = 1;
+  string status = 1;
+  repeated System data = 2;
+  repeated ResponseError errors = 3;
 }
+
+message Response {}
 
 message System {
   int64 system_no = 1;

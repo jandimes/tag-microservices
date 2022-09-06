@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 
 	"go.uber.org/zap"
 
@@ -43,8 +44,8 @@ func RunServer(ctx context.Context, port int, _ *zap.Logger) error {
 		Handler: mux,
 	}
 
-	//metaConn, err := grpc.DialContext(ctx, "meta.meta.svc.cluster.local:5000", opts...)
-	metaConn, err := grpc.DialContext(ctx, "localhost:5000", opts...)
+	metaConn, err := grpc.DialContext(ctx,
+		fmt.Sprintf("localhost:%s", os.Getenv("APPS_META_SERVICE_PORT")), opts...)
 	if err != nil {
 		return fmt.Errorf("failed to dial to meta grpc server: %w", err)
 	}
