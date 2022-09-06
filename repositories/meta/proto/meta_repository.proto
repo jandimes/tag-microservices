@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package repositories.meta.proto;
+
+option go_package = "github.com/JanCalebManzano/tag-microservices/repositories/meta/proto";
+
+service MetaRepository {
+  rpc GetAllSystems(GetAllSystemsRequest) returns (GetAllSystemsResponse);
+}
+
+message GetAllSystemsRequest {}
+
+message GetAllSystemsResponse {
+  repeated System systems = 1;
+}
+
+message System {
+  int64 system_no = 1;
+  string system_name = 2;
+  string system_short_name = 3;
+  string set_user = 4;
+  string set_timestamp = 5;
+}
