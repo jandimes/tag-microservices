@@ -49,11 +49,11 @@ func (s *server) handleUpdates(ctx context.Context) {
 	for {
 		req, err := stream.Recv()
 		if err != nil {
-			s.log.Error("Error receiving systems", zap.Error(err))
+			s.log.Error("client: Error receiving systems", zap.Error(err))
 			return
 		}
 
-		s.log.Info("Received updated systems")
+		s.log.Info("client: Received updated systems")
 		s.systems = req.Systems
 	}
 }

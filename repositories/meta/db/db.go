@@ -105,7 +105,7 @@ func (d *db) MonitorSystems(interval time.Duration) chan struct{} {
 			case <-ticker.C:
 				d.systems, err = d.fetchAllSystems()
 				if err != nil {
-					d.log.Error("server: Unable to get updated systems", zap.Error(err))
+					d.log.Error("db: Unable to get updated systems", zap.Error(err))
 					return
 				}
 

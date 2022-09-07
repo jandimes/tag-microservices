@@ -38,13 +38,13 @@ func newServer(ctx context.Context, log *zap.Logger, metaDB db.MetaDB) *server {
 
 func (s *server) handleUpdates(ctx context.Context) {
 	for range s.db.MonitorSystems(5 * time.Second) {
-		s.log.Info("Got updated systems")
+		s.log.Info("server: Received updated systems")
 
 		for k, v := range s.systemSubscriptions {
 			for _, srs := range v {
 				systems, err := s.GetAllSystems(ctx, srs)
 				if err != nil {
-					s.log.Error("server: Unable to get updated systems")
+					s.log.Error("server: Unable to get updated systems", zap.Error(err))
 				}
 
 				if err := k.Send(systems); err != nil {
