@@ -25,14 +25,12 @@ func RunServer(ctx context.Context, port int, logger *zap.Logger) error {
 	conn, err := grpc.DialContext(ctx,
 		fmt.Sprintf("localhost:%s", os.Getenv("APPS_META_REPOSITORY_PORT")), opts...)
 	if err != nil {
-		return fmt.Errorf("failed to dial db server: %w", err)
+		return fmt.Errorf("failed to dial repository server: %w", err)
 	}
 
 	repositoryClient := repositories.NewMetaRepositoryClient(conn)
 
-	svc := &server{
-		repositoryClient: repositoryClient,
-	}
+	svc := newServer(ctx, logger, repositoryClient)
 
 	return pkggrpc.NewServer(port, logger, func(s *grpc.Server) {
 		proto.RegisterMetaServiceServer(s, svc)

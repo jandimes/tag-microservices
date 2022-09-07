@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MetaRepositoryClient interface {
 	GetAllSystems(ctx context.Context, in *GetAllSystemsRequest, opts ...grpc.CallOption) (*GetAllSystemsResponse, error)
+	SubscribeSystems(ctx context.Context, opts ...grpc.CallOption) (MetaRepository_SubscribeSystemsClient, error)
 }
 
 type metaRepositoryClient struct {
@@ -42,11 +43,43 @@ func (c *metaRepositoryClient) GetAllSystems(ctx context.Context, in *GetAllSyst
 	return out, nil
 }
 
+func (c *metaRepositoryClient) SubscribeSystems(ctx context.Context, opts ...grpc.CallOption) (MetaRepository_SubscribeSystemsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &MetaRepository_ServiceDesc.Streams[0], "/repositories.meta.proto.MetaRepository/SubscribeSystems", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &metaRepositorySubscribeSystemsClient{stream}
+	return x, nil
+}
+
+type MetaRepository_SubscribeSystemsClient interface {
+	Send(*GetAllSystemsRequest) error
+	Recv() (*GetAllSystemsResponse, error)
+	grpc.ClientStream
+}
+
+type metaRepositorySubscribeSystemsClient struct {
+	grpc.ClientStream
+}
+
+func (x *metaRepositorySubscribeSystemsClient) Send(m *GetAllSystemsRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *metaRepositorySubscribeSystemsClient) Recv() (*GetAllSystemsResponse, error) {
+	m := new(GetAllSystemsResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // MetaRepositoryServer is the server API for MetaRepository service.
 // All implementations must embed UnimplementedMetaRepositoryServer
 // for forward compatibility
 type MetaRepositoryServer interface {
 	GetAllSystems(context.Context, *GetAllSystemsRequest) (*GetAllSystemsResponse, error)
+	SubscribeSystems(MetaRepository_SubscribeSystemsServer) error
 	mustEmbedUnimplementedMetaRepositoryServer()
 }
 
@@ -56,6 +89,9 @@ type UnimplementedMetaRepositoryServer struct {
 
 func (UnimplementedMetaRepositoryServer) GetAllSystems(context.Context, *GetAllSystemsRequest) (*GetAllSystemsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllSystems not implemented")
+}
+func (UnimplementedMetaRepositoryServer) SubscribeSystems(MetaRepository_SubscribeSystemsServer) error {
+	return status.Errorf(codes.Unimplemented, "method SubscribeSystems not implemented")
 }
 func (UnimplementedMetaRepositoryServer) mustEmbedUnimplementedMetaRepositoryServer() {}
 
@@ -88,6 +124,32 @@ func _MetaRepository_GetAllSystems_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MetaRepository_SubscribeSystems_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(MetaRepositoryServer).SubscribeSystems(&metaRepositorySubscribeSystemsServer{stream})
+}
+
+type MetaRepository_SubscribeSystemsServer interface {
+	Send(*GetAllSystemsResponse) error
+	Recv() (*GetAllSystemsRequest, error)
+	grpc.ServerStream
+}
+
+type metaRepositorySubscribeSystemsServer struct {
+	grpc.ServerStream
+}
+
+func (x *metaRepositorySubscribeSystemsServer) Send(m *GetAllSystemsResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *metaRepositorySubscribeSystemsServer) Recv() (*GetAllSystemsRequest, error) {
+	m := new(GetAllSystemsRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // MetaRepository_ServiceDesc is the grpc.ServiceDesc for MetaRepository service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -100,6 +162,13 @@ var MetaRepository_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _MetaRepository_GetAllSystems_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "SubscribeSystems",
+			Handler:       _MetaRepository_SubscribeSystems_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+	},
 	Metadata: "repositories/meta/proto/meta_repository.proto",
 }

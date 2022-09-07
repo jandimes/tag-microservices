@@ -6,6 +6,7 @@ option go_package = "github.com/JanCalebManzano/tag-microservices/repositories/m
 
 service MetaRepository {
   rpc GetAllSystems(GetAllSystemsRequest) returns (GetAllSystemsResponse);
+  rpc SubscribeSystems(stream GetAllSystemsRequest) returns (stream GetAllSystemsResponse);
 }
 
 message GetAllSystemsRequest {}

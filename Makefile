@@ -7,3 +7,6 @@ proto-repo-meta:
 	protoc -I repositories/meta/proto/ meta_repository.proto \
 	--go_out=${GOPATH}/src \
 	--go-grpc_out=${GOPATH}/src
+
+subscribe-meta-systems:
+	grpcurl -plaintext -msg-template -d '@' localhost:5006 repositories.meta.proto.MetaRepository/SubscribeSystems
